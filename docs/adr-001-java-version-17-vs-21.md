@@ -1,4 +1,4 @@
-# ADR-006: Java Version 17 vs 21
+# ADR-001: Java Version 17 vs 21
 
 ## Status
 
