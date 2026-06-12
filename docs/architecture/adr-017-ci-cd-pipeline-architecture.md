@@ -6,143 +6,117 @@ Proposed
 
 ## Context
 
-The Core Banking Middleware Modernization project aims to deliver new banking capabilities with increased speed and reliability, while significantly reducing system downtime. In a microservices architecture, where numerous services are developed, deployed, and operated independently, a robust Continuous Integration (CI) and Continuous Delivery (CD) pipeline is fundamental to achieving these goals.
+The Core Banking Middleware Modernization project, built on a microservices architecture, aims to significantly improve the speed of delivering new banking capabilities and reduce system downtime. Achieving these goals requires a highly automated, reliable, and efficient Continuous Integration (CI) and Continuous Delivery (CD) pipeline.
 
-Without a well-defined CI/CD pipeline, the project would face:
-*   Slow and inconsistent software delivery cycles.
-*   Manual and error-prone deployment processes.
-*   Increased risk of regressions and production incidents.
-*   Difficulty in maintaining code quality and security standards.
-*   Extended lead times for new features and bug fixes.
+Without a well-defined CI/CD pipeline, the project risks:
+*   Slow and inconsistent deployments.
+*   Manual errors leading to increased downtime.
+*   Delayed feedback loops for developers.
+*   Difficulty in maintaining quality across numerous microservices.
+*   Inability to rapidly respond to market changes or security vulnerabilities.
 
-This ADR details the architecture of our CI/CD pipeline, outlining the automated processes, tools, stages, and quality gates that enable rapid, reliable, and safe delivery of microservices, directly contributing to reduced downtime and improved speed of delivering new banking capabilities.
+This ADR outlines the architecture of the CI/CD pipeline, detailing the automated processes, tools, stages, and quality gates that enable faster, safer, and more reliable delivery of microservices.
 
 ## Decision
 
-We will implement a comprehensive, automated **Continuous Integration and Continuous Delivery (CI/CD) Pipeline Architecture** for all microservices. This pipeline will enforce quality gates, automate builds, tests, and deployments, and integrate with our containerization and orchestration platforms.
+We will implement a robust, automated **Continuous Integration and Continuous Delivery (CI/CD) Pipeline** for all microservices. This pipeline will be declarative, version-controlled, and integrated with our Kubernetes deployment environment.
 
 ### 1. Core Principles
 
 *   **Automation First**: Minimize manual intervention at every stage of the pipeline.
-*   **Fast Feedback**: Provide rapid feedback to developers on code quality, build status, and test results.
-*   **Quality Gates**: Enforce quality and security standards at each stage to prevent defects from propagating.
-*   **Reproducibility**: Ensure builds and deployments are consistent and reproducible across environments.
-*   **Traceability**: Maintain a clear audit trail of all changes, builds, and deployments.
-*   **Security by Design**: Integrate security checks throughout the pipeline.
+*   **Fast Feedback**: Provide rapid feedback to developers on code quality and correctness.
+*   **Reproducibility**: Ensure that builds and deployments are consistent and repeatable.
+*   **Quality Gates**: Implement automated checks at each stage to maintain high quality.
+*   **Security by Design**: Integrate security scanning and checks throughout the pipeline.
+*   **Version Control Everything (GitOps)**: Pipeline definitions, application code, and infrastructure configurations (Kubernetes manifests) will all be stored in Git.
 
-### 2. Pipeline Stages and Gates
+### 2. Pipeline Stages
 
-The CI/CD pipeline will consist of the following stages, with defined quality gates at each transition:
+The CI/CD pipeline will consist of the following main stages:
 
-#### 2.1. Code Stage
+#### 2.1. Continuous Integration (CI)
 
-*   **Activity**: Developers commit code to a version control system.
-*   **Tools**: Git (e.g., GitLab, GitHub, Bitbucket).
-*   **Gate**: Code review (manual or automated via pull requests).
+1.  **Source Code Commit**: Developers commit code to a Git repository (e.g., GitLab, GitHub, Bitbucket).
+2.  **Build**:
+    *   Triggered by code commit.
+    *   Compiles source code.
+    *   Runs unit tests (as per ADR-014).
+    *   Performs static code analysis (e.g., SonarQube).
+    *   Builds application artifacts (e.g., JAR files for Java microservices).
+3.  **Package**:
+    *   Builds Docker images (as per ADR-010) using multi-stage builds and minimal base images.
+    *   Tags Docker images with unique identifiers (e.g., Git SHA, version number).
+    *   Pushes Docker images to a secure container registry.
+4.  **Test**:
+    *   Runs integration tests (as per ADR-014).
+    *   Executes contract tests (e.g., Pact, as per ADR-014) to verify API compatibility.
+    *   Performs security scans on the Docker image (e.g., Trivy, Clair).
 
-#### 2.2. Build Stage (Continuous Integration)
+#### 2.2. Continuous Delivery (CD)
 
-*   **Activity**: Compile code, run static analysis, execute unit tests, and build artifacts (e.g., Docker images).
-*   **Tools**:
-    *   **CI Server**: Jenkins, GitLab CI, GitHub Actions (chosen based on organizational preference).
-    *   **Build Tools**: Maven/Gradle.
-    *   **Static Analysis**: SonarQube (for code quality, security vulnerabilities, and code smells).
-    *   **Dependency Scanning**: Tools for identifying vulnerable third-party libraries.
-    *   **Artifact Repository**: Nexus, Artifactory (for storing build artifacts and Docker images).
-*   **Gates**:
-    *   Successful compilation.
-    *   Static analysis passes (e.g., SonarQube quality gate).
-    *   Unit tests pass with required code coverage (as per ADR-014).
-    *   Dependency vulnerability scan passes.
-    *   Docker image built and pushed to container registry.
+1.  **Deployment to Development/Test Environments**:
+    *   Automatically deploys the new Docker image to a dedicated Kubernetes development or test environment.
+    *   Runs automated end-to-end tests (as per ADR-014) against the deployed service.
+    *   Performs automated API functional tests.
+2.  **Manual Approval (Optional)**: For critical environments (e.g., Staging, Production), a manual approval step may be required after successful automated tests.
+3.  **Deployment to Staging/Pre-Production**:
+    *   Deploys the service to a staging environment, mirroring production as closely as possible.
+    *   Runs performance tests (as per ADR-014).
+    *   Conducts user acceptance testing (UAT) and security penetration testing.
+4.  **Deployment to Production**:
+    *   Utilizes Kubernetes deployment strategies (Rolling Updates, Blue/Green, Canary - as per ADR-010) to minimize downtime.
+    *   Monitors the deployment closely using the observability stack (ADR-009) for any anomalies.
+    *   Automated rollback if critical metrics degrade.
 
-#### 2.3. Test Stage
+### 3. Key Tools and Technologies
 
-*   **Activity**: Execute integration tests, contract tests, and potentially component-level performance tests.
-*   **Tools**:
-    *   **Test Frameworks**: Spring Boot Test, Testcontainers.
-    *   **Contract Testing**: Pact (as per ADR-014).
-    *   **Performance Testing**: JMeter, Gatling (for component-level).
-*   **Gates**:
-    *   Integration tests pass.
-    *   Contract tests pass (consumer and provider verification).
-    *   Acceptable performance metrics for component-level tests.
+*   **Version Control System**: Git (e.g., GitLab, GitHub, Bitbucket).
+*   **CI/CD Orchestrator**: Jenkins, GitLab CI, GitHub Actions, Argo CD (for GitOps).
+*   **Container Registry**: Docker Hub, GitLab Container Registry, AWS ECR, Google Container Registry.
+*   **Code Quality**: SonarQube.
+*   **Testing Frameworks**: JUnit, Mockito, Spring Boot Test, Testcontainers, Pact.
+*   **Security Scanners**: Trivy, Clair.
+*   **Deployment Target**: Kubernetes (as per ADR-010).
+*   **Configuration Management**: HashiCorp Vault, Kubernetes ConfigMaps (as per ADR-013).
+*   **Observability**: Prometheus, Grafana, ELK/Loki, Jaeger/Tempo (as per ADR-009).
 
-#### 2.4. Deploy Stage (Continuous Delivery to Non-Production)
+### 4. GitOps Integration
 
-*   **Activity**: Deploy the validated Docker images to non-production Kubernetes environments (e.g., Dev, QA, Staging).
-*   **Tools**:
-    *   **Orchestration**: Kubernetes (as per ADR-010).
-    *   **GitOps Tool**: Argo CD, Flux CD (for declarative deployments from Git).
-    *   **Configuration Management**: Kubernetes ConfigMaps, HashiCorp Vault (as per ADR-013).
-*   **Gates**:
-    *   Successful deployment to the target environment.
-    *   Liveness and readiness probes pass.
-    *   Basic smoke tests pass.
-
-#### 2.5. Release Stage (Continuous Delivery to Production)
-
-*   **Activity**: Deploy the validated Docker images to the production Kubernetes environment.
-*   **Tools**: Kubernetes, GitOps Tool (Argo CD/Flux CD).
-*   **Deployment Strategies**: Rolling Updates (default), Blue/Green, Canary (as per ADR-010).
-*   **Gates**:
-    *   Successful deployment using chosen strategy.
-    *   Post-deployment smoke tests pass.
-    *   Observability checks (metrics, logs, traces) confirm health and performance (as per ADR-009).
-    *   Manual approval for critical production deployments (optional, for highly regulated changes).
-
-#### 2.6. Monitor Stage (Continuous Operations)
-
-*   **Activity**: Continuously monitor the deployed services in production.
-*   **Tools**: Prometheus, Grafana, Jaeger, ELK/Loki (as per ADR-009).
-*   **Feedback Loop**: Alerts from monitoring tools feed back into the development process for rapid issue resolution.
-
-### 3. CI/CD Tooling Ecosystem
-
-*   **Version Control**: Git (e.g., GitLab, GitHub, Bitbucket)
-*   **CI/CD Orchestration**: Jenkins, GitLab CI, GitHub Actions
-*   **Containerization**: Docker
-*   **Container Registry**: Docker Hub, GitLab Container Registry, AWS ECR, Google Container Registry
-*   **Code Quality**: SonarQube
-*   **Artifact Management**: Nexus, Artifactory
-*   **Orchestration**: Kubernetes
-*   **GitOps**: Argo CD / Flux CD
-*   **Secrets Management**: HashiCorp Vault
-*   **Testing**: JUnit, Mockito, Testcontainers, Pact, JMeter/Gatling
-*   **Observability**: Prometheus, Grafana, Jaeger, ELK/Loki
+*   Kubernetes manifests and Helm charts for deploying microservices will be stored in a dedicated Git repository.
+*   Changes to this repository will trigger automated synchronization and deployment to Kubernetes clusters via a GitOps operator (e.g., Argo CD, Flux CD). This ensures that the desired state in Git is always reflected in the cluster.
 
 ## Consequences
 
 ### Positive
 
-*   **Reduced Downtime**: Automated, controlled deployments with robust testing and rollback capabilities significantly reduce the risk of production incidents and their duration.
-*   **Improved Delivery Speed**: Automation across all stages enables faster iteration, shorter lead times for features, and quicker bug fixes.
-*   **Higher Code Quality**: Continuous static analysis, unit testing, and code reviews enforce high standards.
-*   **Enhanced Reliability and Stability**: Comprehensive testing (integration, contract, performance) and controlled deployment strategies lead to more stable systems.
-*   **Increased Developer Productivity**: Developers spend less time on manual tasks and more time on coding.
-*   **Better Security Posture**: Security scanning integrated throughout the pipeline helps identify and remediate vulnerabilities early.
-*   **Auditability and Compliance**: Every change is tracked, providing a clear audit trail for regulatory compliance.
+*   **Reduced System Downtime**: Automated, controlled deployments with strategies like blue/green and rolling updates (ADR-010) significantly minimize service interruptions. Automated rollbacks further reduce MTTR.
+*   **Improved Speed of Delivering New Banking Capabilities**: Rapid and reliable deployments enable faster iteration and quicker delivery of features to market.
+*   **Enhanced Quality and Reliability**: Automated testing and quality gates catch defects early, preventing them from reaching production.
+*   **Increased Developer Productivity**: Developers can focus on coding, with automated processes handling builds, tests, and deployments.
+*   **Consistent Environments**: Ensures that what works in development works in production.
+*   **Stronger Security Posture**: Integrated security scanning helps identify vulnerabilities early in the lifecycle.
+*   **Auditability**: Every change is traceable through Git and the pipeline logs.
 
 ### Negative
 
-*   **Significant Initial Investment**: Setting up and configuring a robust CI/CD pipeline requires substantial upfront effort, expertise, and resources.
-*   **Maintenance Overhead**: The pipeline itself needs to be maintained, updated, and monitored.
-*   **Complexity**: Managing a diverse set of tools and integrations can be complex.
-*   **Learning Curve**: Teams need to acquire skills in various CI/CD tools and practices.
-*   **Tooling Lock-in**: While open-source tools are preferred, integrating them creates a dependency on their ecosystems.
+*   **Initial Setup Complexity**: Designing and implementing a robust CI/CD pipeline requires significant upfront effort and expertise.
+*   **Maintenance Overhead**: Pipelines need continuous maintenance, updates, and optimization as the architecture evolves.
+*   **Tooling Landscape**: Managing multiple tools and their integrations can be complex.
+*   **Resource Consumption**: Running comprehensive tests and builds requires dedicated infrastructure.
+*   **Learning Curve**: Teams need to adapt to new tools and a more automated workflow.
 
 ## Alternatives Considered
 
 ### 1. Manual Deployment
 
-*   **Description**: Developers or operations teams manually deploy artifacts to environments.
-*   **Pros**: No initial setup cost for automation.
-*   **Cons**: Extremely slow, error-prone, inconsistent, not scalable, and leads to significant downtime and delivery delays. Rejected.
+*   **Description**: Deploying applications manually using scripts or direct commands.
+*   **Pros**: Low initial setup cost.
+*   **Cons**: Highly error-prone, slow, inconsistent, leads to significant downtime, and cannot scale with a microservices architecture. Rejected.
 
-### 2. Basic CI, Manual CD
+### 2. Basic Scripted CI/CD
 
-*   **Description**: Automated builds and unit tests (CI), but manual deployment to production (CD).
-*   **Pros**: Some quality checks, faster feedback on code.
-*   **Cons**: Still suffers from manual deployment risks, slow delivery to production, and inconsistent environments. Does not fully address the goals of reduced downtime and improved delivery speed. Rejected.
+*   **Description**: Using simple scripts to automate some build and test steps, but with limited deployment automation or quality gates.
+*   **Pros**: Better than manual, but still limited.
+*   **Cons**: Lacks robustness, scalability, and advanced features needed for a complex microservices environment. Does not provide the necessary confidence for banking applications. Rejected.
 
-The comprehensive CI/CD Pipeline Architecture is chosen as an essential enabler for the Core Banking Middleware Modernization project. It directly supports the goals of reducing system downtime and improving the speed of delivering new banking capabilities by automating quality assurance, deployment, and operational feedback loops.
+The chosen CI/CD pipeline architecture, integrating with Kubernetes and leveraging GitOps, is fundamental to achieving the project's goals of reduced downtime and accelerated delivery of new banking capabilities, while maintaining high standards of quality and security.

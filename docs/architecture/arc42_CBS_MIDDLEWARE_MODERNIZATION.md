@@ -370,6 +370,9 @@ ADR references:
 * ADR-012: API Gateway Product Selection and Responsibilities
 * ADR-013: Configuration Management Strategy
 * ADR-014: Testing Strategy for Microservices
+* ADR-015: Migration Strategy (Deep Dive into Strangler Fig)
+* ADR-016: Integration Adapter Design (for ISO 8583/20022)
+* ADR-017: CI/CD Pipeline Architecture
 
 ---
 
