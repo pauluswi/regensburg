@@ -356,11 +356,20 @@ Deployment principles:
 
 ADR references:
 
-* ADR-001: Java Version 17 vs 21.
-* ADR-002: API Design Guidelines and Versioning.
-* ADR-003: Microservice Communication Strategy.
-* ADR-004: Event Streaming using Kafka.
-* ADR-005: Redis for Idempotency and Caching.
+* ADR-001: Java Version 17 vs 21
+* ADR-002: API Design Guidelines and Versioning
+* ADR-003: Microservice Communication Strategy (Synchronous vs. Asynchronous)
+* ADR-004: Event Streaming using Kafka
+* ADR-005: Redis for Idempotency and Caching
+* ADR-006: Database Strategy for Microservices
+* ADR-007: Authentication and Authorization Mechanism
+* ADR-008: Error Handling and Resilience Patterns
+* ADR-009: Centralized Logging, Monitoring, and Tracing (Observability Stack)
+* ADR-010: Containerization and Deployment Strategy
+* ADR-011: Data Migration Strategy from Legacy Systems
+* ADR-012: API Gateway Product Selection and Responsibilities
+* ADR-013: Configuration Management Strategy
+* ADR-014: Testing Strategy for Microservices
 
 ---
 
