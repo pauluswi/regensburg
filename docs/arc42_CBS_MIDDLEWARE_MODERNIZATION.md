@@ -1,7 +1,5 @@
 # arc42 – Core Banking Middleware Modernization
 
-Version: 1.0
-Status: Final
 Authors: IT Software Architecture Team
 
 ![Status](https://img.shields.io/badge/Status-Final-green)
@@ -131,28 +129,26 @@ The modernization strategy consists of:
 ## Level 1 – System Context (C4 Context Diagram)
 
 ```
-                 +-------------------+
-                 | Mobile Banking    |
-                 +---------+---------+
-                           |
-                 +---------v---------+
-                 | Internet Banking  |
-                 +---------+---------+
-                           |
-                 +---------v---------+
-                 | API Gateway       |
-                 +---------+---------+
-                           |
-               +-----------v------------+
-               | Banking Middleware     |
-               | Modernization Platform |
-               +-----------+------------+
-                           |
-         +-----------------+-----------------+
-         |                 |                 |
-         v                 v                 v
-  Core Banking      Payment Networks   Event Platform
-                     (ISO8583/20022)      (Kafka)
+                 +-------------------+    +-------------------+
+                 | Mobile Banking    |    | Internet Banking  |
+                 +---------+---------+    +---------+---------+
+                           |                        |
+                           +-----------v------------+
+                                       |
+                               +---------v---------+
+                               | API Gateway       |
+                               +---------+---------+
+                                         |
+                               +-----------v------------+
+                               | Banking Middleware     |
+                               | Modernization Platform |
+                               +-----------+------------+
+                                         |
+                   +-----------------+-----------------+
+                   |                 |                 |
+                   v                 v                 v
+            Core Banking      Payment Networks   Event Platform
+                               (ISO8583/20022)      (Kafka)
 ```
 
 ---
