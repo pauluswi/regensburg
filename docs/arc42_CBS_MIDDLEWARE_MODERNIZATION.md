@@ -1,8 +1,16 @@
 # arc42 – Core Banking Middleware Modernization
 
 Version: 1.0
-Status: Draft
-Authors: Enterprise Architecture Team
+Status: Final
+Authors: IT Software Architecture Team
+
+![Status](https://img.shields.io/badge/Status-Final-green)
+![Version](https://img.shields.io/badge/Version-1.0-blue)
+![Java](https://img.shields.io/badge/Java-21_LTS-orange)
+![Deployment](https://img.shields.io/badge/Deployment-Kubernetes-326CE5?logo=kubernetes&logoColor=white)
+![Eventing](https://img.shields.io/badge/Eventing-Kafka-231F20?logo=apachekafka&logoColor=white)
+![Cache/Idempotency](https://img.shields.io/badge/Cache/Idempotency-Redis-DC382D?logo=redis&logoColor=white)
+![Framework](https://img.shields.io/badge/Framework-Spring_Boot-6DB33F?logo=springboot&logoColor=white)
 
 ---
 
@@ -352,11 +360,11 @@ Deployment principles:
 
 ADR references:
 
-* ADR-001 Event Streaming using Kafka.
-* ADR-002 Redis for Idempotency and Caching.
-* ADR-003 Kubernetes Deployment Model.
-* ADR-004 Saga Orchestration Strategy.
-* ADR-005 Strangler Pattern Migration.
+* ADR-001: Java Version 17 vs 21.
+* ADR-002: API Design Guidelines and Versioning.
+* ADR-003: Microservice Communication Strategy.
+* ADR-004: Event Streaming using Kafka.
+* ADR-005: Redis for Idempotency and Caching.
 
 ---
 
