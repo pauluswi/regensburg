@@ -1,0 +1,50 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+' Layout
+LAYOUT_WITH_LEGEND()
+
+title Container Diagram for Middleware Platform
+
+System_Boundary(middleware_platform, "Middleware Platform") {
+    Container(api_gateway, "API Gateway", "Spring Cloud Gateway / Istio Gateway", "Routes requests, authentication, rate limiting")
+    Container(channel_apis, "Channel APIs", "Spring Boot Microservices", "Exposes APIs for mobile, internet banking, etc.")
+    Container(orchestration_service, "Orchestration Service", "Spring Boot Microservices", "Coordinates complex business flows (Sagas)")
+    Container(iso8583_adapter, "ISO8583 Adapter", "Spring Boot Microservice", "Handles ISO8583 protocol communication")
+    Container(iso20022_adapter, "ISO20022 Adapter", "Spring Boot Microservice", "Handles ISO20022 protocol communication")
+    Container(core_cbs_adapter, "Core CBS Adapter", "Spring Boot Microservice", "Integrates with the Core Banking System")
+    Container(notification_service, "Notification Service", "Spring Boot Microservice", "Sends customer notifications")
+
+    Container(kafka_platform, "Kafka Event Streaming Platform", "Apache Kafka Cluster", "High-throughput, fault-tolerant event bus")
+    Container(observability_stack, "Observability Stack", "Prometheus, Grafana, ELK/Loki, Jaeger/Tempo", "Centralized logging, monitoring, tracing")
+    Container(redis_cluster, "Redis Cluster", "Redis", "Distributed cache and idempotency store")
+}
+
+System_Ext(mobile_banking, "Mobile Banking", "Mobile Application")
+System_Ext(internet_banking, "Internet Banking", "Web Application")
+System_Ext(payment_networks_ext, "External Payment Networks", "ISO8583/20022")
+System_Ext(core_banking_ext, "Core Banking System", "Legacy System")
+System_Ext(customer_notification_ext, "Customer Notification", "SMS, Email, Push")
+
+Rel(mobile_banking, api_gateway, "Uses", "REST API")
+Rel(internet_banking, api_gateway, "Uses", "REST API")
+
+Rel(api_gateway, channel_apis, "Routes requests to", "REST API")
+Rel(channel_apis, orchestration_service, "Calls", "REST API")
+Rel(orchestration_service, iso8583_adapter, "Calls", "REST API")
+Rel(orchestration_service, iso20022_adapter, "Calls", "REST API")
+Rel(orchestration_service, core_cbs_adapter, "Calls", "REST API")
+Rel(orchestration_service, kafka_platform, "Publishes/Consumes events", "Kafka Topics")
+Rel(orchestration_service, redis_cluster, "Uses for idempotency/cache", "Redis Commands")
+
+Rel(iso8583_adapter, payment_networks_ext, "Communicates with", "ISO8583 TCP/IP")
+Rel(iso20022_adapter, payment_networks_ext, "Communicates with", "ISO20022 XML/HTTPS")
+Rel(core_cbs_adapter, core_banking_ext, "Integrates with", "Various protocols")
+
+Rel(kafka_platform, notification_service, "Publishes/Consumes events", "Kafka Topics")
+Rel(notification_service, customer_notification_ext, "Sends", "SMS/Email/Push")
+
+Rel(middleware_platform, observability_stack, "Sends telemetry to", "Logs, Metrics, Traces")
+Rel(middleware_platform, redis_cluster, "Uses for cache/idempotency", "Redis Commands")
+
+@enduml

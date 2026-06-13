@@ -1,0 +1,128 @@
+openapi: 3.0.0
+info:
+  title: Payment Service API # ADR-002: API Documentation
+  description: API for processing banking payments.
+  version: 1.0.0
+servers:
+  - url: https://api.yourbank.com/api/v1 # ADR-002: URI Versioning
+    description: Production API Gateway
+  - url: http://localhost:8080/api/v1
+    description: Local Development Server
+
+tags:
+  - name: Payments
+    description: Payment processing operations
+
+paths:
+  /payments: # ADR-002: Resource-Oriented Naming
+    post:
+      summary: Process a new payment request
+      operationId: processPayment
+      tags:
+        - Payments
+      requestBody:
+        description: Payment request details
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentRequest' # ADR-002: JSON as Primary Format
+      responses:
+        '202': # ADR-002: Standard HTTP Status Codes
+          description: Payment request accepted for processing.
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Payment request {transactionId} accepted for processing."
+        '400': # ADR-002: Standard HTTP Status Codes
+          description: Invalid input parameters.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse' # ADR-002: Consistent Error Response Format
+        '409': # ADR-002: Standard HTTP Status Codes
+          description: Duplicate request ID. Payment already processed or in progress.
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Duplicate request ID. Payment already processed or is in progress."
+        '500': # ADR-002: Standard HTTP Status Codes
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse' # ADR-002: Consistent Error Response Format
+
+components:
+  schemas:
+    PaymentRequest: # ADR-002: Clear Naming Conventions
+      type: object
+      required:
+        - requestId
+        - sourceAccountNumber
+        - destinationAccountNumber
+        - amount
+        - currency
+      properties:
+        requestId:
+          type: string
+          description: Unique identifier for the payment request (for idempotency).
+          example: "req-abc-123"
+        sourceAccountNumber:
+          type: string
+          description: Account number from which funds are debited.
+          minLength: 10
+          maxLength: 16
+          example: "1234567890"
+        destinationAccountNumber:
+          type: string
+          description: Account number to which funds are credited.
+          minLength: 10
+          maxLength: 16
+          example: "0987654321"
+        amount:
+          type: number
+          format: float
+          description: Amount of the payment.
+          minimum: 0.01
+          example: 100.50
+        currency:
+          type: string
+          description: 3-letter ISO currency code.
+          pattern: '^[A-Z]{3}$'
+          example: "USD"
+        narration:
+          type: string
+          description: Optional description for the payment.
+          nullable: true
+          example: "Monthly subscription fee"
+    ErrorResponse: # ADR-002: Consistent Error Response Format
+      type: object
+      properties:
+        code:
+          type: string
+          description: A unique error code.
+          example: "BAD_REQUEST"
+        message:
+          type: string
+          description: A human-readable error message.
+          example: "Invalid input parameters"
+        details:
+          type: array
+          items:
+            type: object
+            properties:
+              field:
+                type: string
+                example: "amount"
+              error:
+                type: string
+                example: "must be greater than 0"
+          description: Optional list of specific validation errors.
+        timestamp:
+          type: string
+          format: date-time
+          description: The time the error occurred.
+          example: "2023-10-27T10:30:00Z"

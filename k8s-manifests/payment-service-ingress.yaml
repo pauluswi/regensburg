@@ -1,0 +1,31 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: payment-service-ingress
+  labels:
+    app: payment-service
+  annotations:
+    # ADR-012: API Gateway Product Selection - Example annotations for Nginx Ingress Controller
+    # If using Spring Cloud Gateway or Istio Gateway, these annotations would differ
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    # ADR-012: Rate Limiting example
+    nginx.ingress.kubernetes.io/limit-rpm: "60" # 60 requests per minute
+spec:
+  ingressClassName: nginx # Or 'istio' if using Istio Gateway
+  rules:
+    - host: api.yourbank.com # Replace with your actual API domain
+      http:
+        paths:
+          - path: /api/v1/payments(/|$)(.*) # ADR-002: URI Versioning
+            pathType: Prefix
+            backend:
+              service:
+                name: payment-service # Refers to the Kubernetes Service
+                port:
+                  number: 80 # Port exposed by the Service
+  tls: # ADR-007: Security - SSL/TLS Termination
+    - hosts:
+        - api.yourbank.com
+      secretName: yourbank-tls-secret # Kubernetes Secret containing TLS certificate and key

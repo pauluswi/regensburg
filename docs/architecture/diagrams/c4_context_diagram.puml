@@ -1,0 +1,37 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
+
+' Layout
+LAYOUT_WITH_LEGEND()
+
+title System Context Diagram for Core Banking Middleware Modernization
+
+Person(mobile_banking, "Mobile Banking User", "Uses the mobile banking application")
+Person(internet_banking, "Internet Banking User", "Uses the internet banking application")
+System(atm_switch, "ATM Switch", "Manages ATM transactions")
+System(qris_providers, "QRIS Providers", "External QRIS payment networks")
+System(bi_fast, "BI-FAST", "Indonesia's real-time payment rail")
+System(payment_gateway_partners, "Payment Gateway Partners", "External payment processing services")
+System(fraud_detection_systems, "Fraud Detection Systems", "External systems for fraud analysis")
+System_Ext(core_banking, "Core Banking System", "The existing legacy core banking system (unchanged)")
+
+System_Boundary(middleware_platform, "Banking Middleware Modernization Platform") {
+    System(api_gateway, "API Gateway", "Entry point for external applications")
+    System(payment_networks, "Payment Networks", "Handles ISO8583/20022 communication")
+    System(event_platform, "Event Platform", "Apache Kafka for event streaming")
+}
+
+Rel(mobile_banking, api_gateway, "Uses", "REST API")
+Rel(internet_banking, api_gateway, "Uses", "REST API")
+Rel(atm_switch, api_gateway, "Connects to", "REST API / ISO8583 Adapter")
+Rel(qris_providers, api_gateway, "Connects to", "REST API / ISO20022 Adapter")
+Rel(bi_fast, api_gateway, "Connects to", "REST API / ISO20022 Adapter")
+Rel(payment_gateway_partners, api_gateway, "Connects to", "REST API")
+Rel(api_gateway, middleware_platform, "Routes requests to")
+
+Rel(middleware_platform, core_banking, "Integrates with", "Various protocols")
+Rel(middleware_platform, payment_networks, "Communicates with", "ISO8583/20022")
+Rel(middleware_platform, event_platform, "Publishes/Consumes events", "Kafka")
+Rel(middleware_platform, fraud_detection_systems, "Sends data to / Receives decisions from", "REST API / Events")
+
+@enduml

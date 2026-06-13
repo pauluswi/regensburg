@@ -1,0 +1,26 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: payment-service-config # ADR-013: Non-Sensitive Configuration via ConfigMap
+  labels:
+    app: payment-service
+data:
+  # Example application properties
+  application.properties: |
+    spring.application.name=payment-service
+    server.port=8080
+    # Kafka configuration (example, actual values might come from Spring Cloud Config or environment)
+    spring.kafka.bootstrap-servers=kafka-broker-1:9092,kafka-broker-2:9092
+    spring.kafka.producer.key-serializer=org.apache.kafka.common.serialization.StringSerializer
+    spring.kafka.producer.value-serializer=org.springframework.kafka.support.serializer.JsonSerializer
+    spring.kafka.producer.properties.acks=all
+    spring.kafka.producer.properties.retries=3
+    # Redis configuration (example, actual values might come from Spring Cloud Config or environment)
+    spring.data.redis.host=redis-master
+    spring.data.redis.port=6379
+    # Resilience4j configuration (example, can also be in application.properties or Spring Cloud Config)
+    resilience4j.circuitbreaker.instances.fraudDetectionService.failureRateThreshold=50
+    resilience4j.circuitbreaker.instances.fraudDetectionService.waitDurationInOpenState=5s
+    resilience4j.retry.instances.paymentProcessingRetry.maxAttempts=3
+    # Other non-sensitive settings
+    app.feature.toggle.new-payment-flow=true
