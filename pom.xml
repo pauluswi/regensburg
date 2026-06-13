@@ -103,6 +103,7 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
+                    <mainClass>com.regensburg.paymentservice.mock.PaymentServiceApplication</mainClass> <!-- Specify the main class -->
                     <excludes>
                         <exclude>
                             <groupId>org.projectlombok</groupId>
