@@ -1,6 +1,5 @@
-# Core Banking Middleware Modernization Showcase
+# Core Banking Middleware Modernization
 
-![Status](https://img.shields.io/badge/Status-Showcase-blue)
 ![Language](https://img.shields.io/badge/Language-Java_21-orange?logo=java&logoColor=white)
 ![Framework](https://img.shields.io/badge/Framework-Spring_Boot-6DB33F?logo=springboot&logoColor=white)
 ![Orchestration](https://img.shields.io/badge/Orchestration-Kubernetes-326CE5?logo=kubernetes&logoColor=white)
