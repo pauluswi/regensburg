@@ -16,6 +16,8 @@ This document summarizes the key architectural decisions, the chosen options, an
 | 010 | Containerization and Deployment Strategy | Docker for Containerization, Kubernetes for Orchestration | Virtual Machines (VMs) with Traditional Deployment, Serverless Platforms, Docker Swarm |
 | 011 | Data Migration Strategy from Legacy Systems | Phased, Incremental (Dual-Write, Event-Driven Sync, Batch) | Big Bang Migration, Manual Data Entry/Reconciliation |
 | 012 | API Gateway Product Selection and Responsibilities | Spring Cloud Gateway (with conditional Istio Gateway) | No API Gateway (Direct Service Exposure), Commercial API Gateway Products, Nginx/HAProxy as a Reverse Proxy |
+| 013 | Configuration Management Strategy | Layered (Vault for Secrets, K8s ConfigMaps, Spring Cloud Config) | Environment Variables / Command Line Arguments, Hardcoding Configurations, Cloud Provider Specific |
 | 014 | Testing Strategy for Microservices | Multi-faceted testing strategy (Unit, Integration, Contract, E2E, Performance, Chaos, Security) | Heavy End-to-End Testing, Minimal Testing, Manual-Only Testing |
 | 015 | Migration Strategy (Deep Dive into Strangler Fig) | Strangler Fig Pattern (Incremental Replacement, Coexistence, Traffic Interception) | Big Bang Rewrite, Rebuild from Scratch (Greenfield) with Coexistence |
+| 016 | Integration Adapter Design (for ISO 8583/20022) | Dedicated Integration Adapters as Microservices | Direct Integration within Business Microservices, Commercial Integration Platform (ESB-like) |
 | 017 | CI/CD Pipeline Architecture | Robust, Automated CI/CD Pipeline (Declarative, Version-Controlled, GitOps) | Manual Deployment, Basic Scripted CI/CD |
