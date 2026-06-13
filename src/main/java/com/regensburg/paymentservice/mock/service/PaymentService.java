@@ -1,6 +1,7 @@
 package com.regensburg.paymentservice.mock.service;
 
 import com.regensburg.paymentservice.dto.PaymentRequest;
+import com.regensburg.paymentservice.mock.adapter.Iso8583AdapterService; // Import the new adapter
 import com.regensburg.paymentservice.mock.event.PaymentEvent;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.retry.annotation.Retry;
@@ -19,6 +20,7 @@ public class PaymentService {
     private final RedisIdempotencyService idempotencyService;
     private final ExternalFraudDetectionService fraudDetectionService;
     private final KafkaProducerService kafkaProducerService;
+    private final Iso8583AdapterService iso8583AdapterService; // Inject the ISO 8583 adapter
 
     private static final String FRAUD_DETECTION_SERVICE = "fraudDetectionService"; // Name for Circuit Breaker
 
@@ -47,8 +49,17 @@ public class PaymentService {
             throw new IllegalStateException("Payment flagged as fraudulent.");
         }
 
-        // Simulate core banking interaction (simplified)
-        log.info("Payment request {} (Tx ID: {}) approved by core banking system.", request.getRequestId(), transactionId);
+        // ADR-016: Integrate with ISO 8583 Adapter for core banking interaction
+        log.info("Calling ISO 8583 Adapter for core banking transaction for request ID: {}", request.getRequestId());
+        String adapterResponseStatus = iso8583AdapterService.sendPaymentRequestViaIso8583(request);
+
+        if (!"APPROVED".equals(adapterResponseStatus)) {
+            log.warn("Payment request {} (Tx ID: {}) declined by ISO 8583 adapter with status: {}", request.getRequestId(), transactionId, adapterResponseStatus);
+            idempotencyService.markRequestAsFailed(request.getRequestId(), "Adapter declined: " + adapterResponseStatus);
+            throw new IllegalStateException("Payment declined by core banking system: " + adapterResponseStatus);
+        }
+
+        log.info("Payment request {} (Tx ID: {}) approved by core banking system via ISO 8583 adapter.", request.getRequestId(), transactionId);
 
         // ADR-003 & ADR-004: Publish event to Kafka for asynchronous processing
         PaymentEvent paymentEvent = PaymentEvent.builder()
@@ -74,7 +85,6 @@ public class PaymentService {
                 // ADR-008: Consider DLQ or other recovery for failed Kafka publish
             }
         });
-
 
         return transactionId;
     }

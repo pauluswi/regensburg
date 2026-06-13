@@ -61,6 +61,7 @@ A `payment-service` microservice (`src/main/java/com/regensburg/paymentservice/m
 *   **Idempotency**: `RedisIdempotencyService` for handling duplicate requests.
 *   **Resilience**: `ExternalFraudDetectionService` protected by a Circuit Breaker.
 *   **Event Streaming**: `KafkaProducerService` for publishing `PaymentEvent`s.
+*   **Integration Adapter**: `Iso8583AdapterService` for simulating external ISO 8583 communication (ADR-016).
 *   **Unit Tests**: `PaymentServiceTest` (`src/test/java/com/regensburg/paymentservice/mock/service/PaymentServiceTest.java`) validating the core logic.
 
 ### 2. Example Kubernetes Manifests
@@ -72,11 +73,8 @@ Declarative YAML files (`k8s-manifests/`) for deploying the `payment-service` to
 *   `payment-service-ingress.yaml`
 
 ### 3. Simplified CI/CD Pipeline Definition
-A GitHub Actions workflow (`.github/workflows/ci-cd-pipeline.yaml`) outlining stages for:
+A GitHub Actions workflow (`.github/workflows/ci-build-only.yaml`) outlining stages for:
 *   Build & Unit Test
-*   Build & Push Docker Image
-*   Integration & Contract Tests
-*   Deploy to Dev Environment
 
 ### 4. OpenAPI Specification Snippet
 An OpenAPI (Swagger) definition (`docs/architecture/api-docs/payment-service-openapi.yaml`) for the `payment-service` API, reinforcing API design guidelines.
@@ -86,12 +84,8 @@ PlantUML definitions (`docs/architecture/diagrams/`) for:
 *   **[C4 Context Diagram](docs/architecture/diagrams/c4_context_diagram.puml)**
 *   **[C4 Container Diagram](docs/architecture/diagrams/c4_container_diagram.puml)**
 
-## How to Explore
+---
 
-1.  **Review Architectural Documentation**: Start with the [arc42 document](docs/architecture/arc42_CBS_MIDDLEWARE_MODERNIZATION.md) for a high-level overview, then dive into specific [ADRs](docs/architecture/) for detailed decisions. The [Trade-offs Summary](docs/architecture/trade-off.md) provides a quick glance at key choices.
-2.  **Examine Code Snippets**: Explore the `src/main/java/com/regensburg/paymentservice/mock` directory to see how architectural patterns are implemented in Java.
-3.  **Run Unit Tests**: Navigate to `src/test/java/com/regensburg/paymentservice/mock/service/PaymentServiceTest.java` and run the tests to see the service's behavior validated.
-4.  **View Kubernetes Manifests**: Inspect the `k8s-manifests/` directory to understand the deployment strategy.
-5.  **Analyze CI/CD Pipeline**: Review `.github/workflows/ci-cd-pipeline.yaml` to see the automated delivery process.
-6.  **Check API Documentation**: Open `docs/architecture/api-docs/payment-service-openapi.yaml` (ideally with a Swagger UI tool) to visualize the API contract.
-7.  **Render C4 Diagrams**: Use an IDE plugin or an online PlantUML renderer to visualize the `.puml` files in `docs/architecture/diagrams/`.
+## Disclaimer
+
+This repository is intended solely as an architectural showcase and demonstration project. The code, configurations, and documentation are simplified and illustrative, focusing on architectural patterns and decisions rather than production-readiness or full feature implementation. It is not intended for direct use in a production banking environment. Security, error handling, and performance aspects are demonstrated conceptually and would require significant hardening and comprehensive implementation for real-world applications.
