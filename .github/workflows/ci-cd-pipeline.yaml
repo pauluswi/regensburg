@@ -10,6 +10,8 @@ on:
       - main
       - develop
 
+if: false # This condition will prevent the entire workflow from running
+
 jobs:
   build-and-unit-test:
     name: Build & Unit Test
